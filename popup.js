@@ -144,53 +144,52 @@ var popup = {
     this.update_form_with_customer_data( customer );
   },
 
+  /**
+   * Get the data from the input fields, build a javascript string and send them
+   * through chrome.tab.executeScript to the current active tab.
+   *
+   * @public
+   */
+  fill_DHL_form: function () {
+    var id, name, address, zipcode, city, phone, email;
 
-    /**
-    * Get the data from the input fields, build a javascript string
-    * and send them through chrome.tab.executeScript to the current
-    * active tab
-    *
-    * @public
-    */
-    fillDhlForm: function () {
+    this.log("Entering fill_DHL_form");
 
-        this.log("Entering fillDhlForm");
+    id = document.getElementById('id').value;
+    name = document.getElementById('name').value;
+    address = document.getElementById('address').value;
+    zipcode = document.getElementById('zipcode').value;
+    city = document.getElementById('city').value;
+    phone = document.getElementById('phone').value;
+    email = document.getElementById('email').value;
 
-        var id = document.getElementById('id').value,
-            name = document.getElementById('name').value,
-            address = document.getElementById('address').value,
-            zipcode = document.getElementById('zipcode').value,
-            city = document.getElementById('city').value,
-            phone = document.getElementById('phone').value,
-            email = document.getElementById('email').value;
+    this.log("fill_DHL_form data is: ");
+    this.log("id: " + id);
+    this.log("name: " + name);
+    this.log("address: " + address);
+    this.log("zipcode: " + zipcode);
+    this.log("city: " + city);
+    this.log("phone: " + phone);
+    this.log("email: " + email);
 
-        this.log("fillDhlForm data is: ");
-        this.log("id: " + id);
-        this.log("name: " + name);
-        this.log("address: " + address);
-        this.log("zipcode: " + zipcode);
-        this.log("city: " + city);
-        this.log("phone: " + phone);
-        this.log("email: " + email);
+    var code = 'document.getElementById("id").value = "' + id +'";'+
+               'document.getElementById("name").value = "' + name +'";'+
+               'document.getElementById("addressline.0").value = "' + address +'";'+
+               'document.getElementById("postcode").value = "' + zipcode +'";'+
+               'document.getElementById("city").value = "' + city +'";'+
+               'document.getElementById("contactPerson").value = "' + name +'";'+
+               'document.getElementById("mobile").value = "' + phone +'";'+
+               'document.getElementById("phone").value = "' + phone +'";'+
+               'document.getElementById("email").value = "' + email +'";'+
+               'document.getElementById("type.consignee").checked = true;'+
+               'document.getElementById("type.notify").checked = true;';
 
-        var code = 'document.getElementById("id").value = "' + id +'";'+
-                    'document.getElementById("name").value = "' + name +'";'+
-                    'document.getElementById("addressline.0").value = "' + address +'";'+
-                    'document.getElementById("postcode").value = "' + zipcode +'";'+
-                    'document.getElementById("city").value = "' + city +'";'+
-                    'document.getElementById("contactPerson").value = "' + name +'";'+
-                    'document.getElementById("mobile").value = "' + phone +'";'+
-                    'document.getElementById("phone").value = "' + phone +'";'+
-                    'document.getElementById("email").value = "' + email +'";'+
-                    'document.getElementById("type.consignee").checked = true;'+
-                    'document.getElementById("type.notify").checked = true;';
+    this.log("code: " + code);
 
-        this.log("code: " + code);
-
-        chrome.tabs.executeScript(null, {code: code}, function() {
-            this.log("executeScript response received");
-        });
-    },
+    chrome.tabs.executeScript(null, {code: code}, function() {
+      this.log("executeScript response received");
+    });
+  },
 
 
   /**
@@ -314,7 +313,7 @@ var popup = {
    */
   log: function( message ){
     var debug;
-    
+
     debug = localStorage[ 'debug' ] === 'true';
 
     if( !debug ){ return; }
@@ -336,5 +335,5 @@ document.getElementById('customers').addEventListener('change', function () {
 });
 
 document.getElementById('send_info').addEventListener('click', function () {
-  popup.fillDhlForm();
+  popup.fill_DHL_form();
 });
