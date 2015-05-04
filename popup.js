@@ -139,7 +139,7 @@ var popup = {
     this.log("Entering show_customer");
 
     id = this.get_selected_customers_id();
-    customer = this.getCustomerById( id );
+    customer = this.customers[ id ];
 
     this.update_form_with_customer_data( customer );
   },
@@ -194,43 +194,59 @@ var popup = {
 
 
   /**
-    * Search the 'customers' array for a customer with the passed customerId as id
-    *
-    * @param {number} customerId, a customer ID
-    * @return {Object} customer
-    * @private
-    */
-  getCustomerById: function( id ){
-    this.log("Entering getCustomerById", id );
+   * Creates a new select node with a default option.
+   *
+   * @private
+   */
+  create_select_element: function(){
+    var select;
 
-    return this.customers[ id ];
+    select = document.createElement('select');
+    select.setAttribute( 'id', 'customers' );
+    select.setAttribute( 'class', 'customers' );
+
+    select.appendChild( this.create_option_element( 'Välj kund', 'Välj kund' ));
+
+    return select;
+  },
+
+  /**
+   * Creates a new option node from given values.
+   *
+   * @private
+   */
+  create_option_element: function( value, text ) {
+    var option;
+
+    option = document.createElement('option');
+    option.setAttribute( 'value', value );
+    option.appendChild( document.createTextNode( text ));
+
+    return option;
   },
 
   /**
    * @private
    *
-   * Updates the #customers select input with new values based on the passed
-   * customers object.
+   * Updates the #customers select input with new values based on the given
+   * array of customer objects.
    *
-   * @param {Object} customers, Customers objects with customer ids as keys
-   * and the corresponding customer as value.
-   * @param {Number|String} customers.id
-   * @param {String} customers.name
+   * @param {Object[]} customers, Array of customer objects with customer id as
+   * key and the corresponding customer as value.
    */
-  updateCustomerOptionsDOM: function( customers ){
-    var length, options, customer;
+  update_customer_select_element: function( customers ){
+    var select, customer, old_select, parent;
 
-    options = '<option value="">V&auml;lj kund</option>';
-    length = customers.length;
+    select = this.create_select_element();
 
     Object.keys( customers ).forEach( function( key ){
       customer = customers[ key ];
-      options += '<option value="'+ customer.id +'">'+ customer.name +'</option>';
+      select.appendChild( this.create_option_element( customer.id, customer.name ));
     });
 
-    this.log( 'options are', options );
-
-    document.getElementById( 'customers' ).innerHTML = options;
+    old_select = document.getElementById( 'customers' );
+    parent = old_select.parentNode;
+    parent.replaceChild( select, old_select );
   },
 
   /**
@@ -267,7 +283,7 @@ var popup = {
 
     responseText = event.target.responseText;
     customers = getCustomersFromResposetext( responsText );
-    this.updateCustomerOptionsDOM( customers );
+    this.update_customer_select_element( customers );
     this.customers = customers;
   },
 
