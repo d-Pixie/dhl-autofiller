@@ -66,7 +66,7 @@ var popup = {
 
     req = new XMLHttpRequest();
     req.open("GET", url, true);
-    req.onload = this.createCustomerOptions.bind(this);
+    req.onload = this.handle_customers_response.bind(this);
     req.send(null);
   },
 
@@ -258,13 +258,13 @@ var popup = {
    * @return {Object} An object with customer ids as keys and the corresponding
    * customer as value.
    */
-  parseResposetextToCustomers: function( responseText ){
-    var customerArray, customers;
+  parse_customers_JSON: function( json ){
+    var customers_array, customers;
 
-    customerArray = JSON.parse( responseText );
+    customers_array = JSON.parse( json );
     customers = {}
 
-    customerArray.forEach( function( customer ){
+    customers_array.forEach( function( customer ){
       customers[ customer.id ] = customer;
     });
 
@@ -277,48 +277,50 @@ var popup = {
    * @param {ProgressEvent} e The XHR ProgressEvent.
    * @private
    */
-  createCustomerOptions: function( event ){
-    this.log("Entering createCustomerOptions");
-    var responseText, customers;
+  handle_customers_response: function( event ){
+    var response, customers;
 
-    responseText = event.target.responseText;
-    customers = getCustomersFromResposetext( responsText );
-    this.update_customer_select_element( customers );
-    this.customers = customers;
+    this.log("Entering handle_customers_response");
+
+    response = event.target.responseText;
+    this.customers = parse_customers_JSON( response );
+    this.update_customer_select_element( this.customers );
   },
 
+  /**
+   * Display an error message in the error container
+   *
+   * @param {string} message, the message to be displayed
+   *
+   * @private
+   */
+  error: function( message ){
+    var error_container;
 
-    /**
-    * Display an error message in the error container
-    *
-    * @param {string} message, the message to be displayed
-    *
-    * @private
-    */
-    error: function(message) {
-        this.log("Error: " + message);
-        var errorContainer = document.getElementById('error');
+    this.log( 'Error: ' + message );
 
-        errorContainer.innerHTML = message;
-    },
+    error_container = document.getElementById( 'error' );
 
+    error_container.innerHTML = message;
+  },
 
-    /**
-    * If the setting Debug is enabled - we pass on the message to
-    * the window.console
-    *
-    * @param {string} message, the message to be logged
-    *
-    * @private
-    */
-    log: function(message) {
-        debug = localStorage['debug'];
+  /**
+   * If the setting Debug is enabled - we pass on the message to
+   * the window.console
+   *
+   * @param {string} message, the message to be logged
+   *
+   * @private
+   */
+  log: function( message ){
+    var debug;
+    
+    debug = localStorage[ 'debug' ] === 'true';
 
-        if (debug === 'true') {
-            window.console.log(message);
-        }
-    }
-
+    if( !debug ){ return; }
+    
+    window.console.log( message );
+  }
 };
 
 document.addEventListener('DOMContentLoaded', function () {
