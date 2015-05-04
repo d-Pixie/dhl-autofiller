@@ -8,48 +8,81 @@ var popup = {
     */
   customers: null,
 
+  /**
+   * Gets an DOM node by id
+   *
+   * @private
+   */
+  element_by_id: function ( id ) {
+    return document.getElementById( id ); 
+  }
 
-    /**
-    * Sends an XHR GET request to grab customers. The XHR's 'onload'
-    * event is hooks up to the 'createCustomerOptions' method through bind.
-    *
-    * @public
-    */
-  loadCustomers: function () {
+  /**
+   * Resets all the input fields in the form.
+   *
+   * @private
+   */
+  reset_the_input_fields: function () {
+    var ids = ['id', 'name', 'address', 'zipcode', 'city', 'phone', 'email'];
 
-        this.log("Entering loadCustomers");
+    ids.forEach( function( id ){
+      this.element_by_id( id ).value = '';  
+    });
+  },
 
-        // Reset the input fields
-        document.getElementById('id').value = '';
-        document.getElementById('name').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('zipcode').value = '';
-        document.getElementById('city').value = '';
-        document.getElementById('phone').value = '';
-        document.getElementById('email').value = '';
+  /**
+   * Loads endpoint from localstorage and verifies it's not empty.
+   *
+   * @private
+   */
+  get_customers_url: function () {
+    var endpoint = localStorage['endpoint'];
 
-        var endpoint = localStorage['endpoint'];
+    if (endpoint.length === 0) {
+      this.error("<br>Woppwopp, det verkar inte finnas någon endpoint konfigurerad. Gör det först och försök sedan igen!<br><br>");
+      return;
+    }
 
+    this.log("Endpoint is " + endpoint + " initiating XMLHttpRequest");
 
-        if (endpoint.length === 0) {
-            this.error("<br>Woppwopp, det verkar inte finnas någon endpoint konfigurerad. Gör det först och försök sedan igen!<br><br>");
-            return;
-        }
+    return endpoint;
+  },
 
-        this.log("Endpoint is " + endpoint + " initiating XMLHttpRequest");
+  /**
+   * Resets all the input fields in the form.
+   *
+   * @private
+   */
+  request_customers: function (url) {
+    var req;
 
-    var req = new XMLHttpRequest();
-      req.open("GET", endpoint, true);
-      req.onload = this.createCustomerOptions.bind(this);
-      req.send(null);
+    req = new XMLHttpRequest();
+    req.open("GET", url, true);
+    req.onload = this.createCustomerOptions.bind(this);
+    req.send(null);
+  },
+
+  /**
+   * Attempts to load the customers from the endpoint url saved in localstorage.
+   *
+   * @public
+   */
+  load_customers: function () {
+    var url;
+
+    this.log("Entering load_customers");
+    this.reset_the_input_fields();
+
+    url = this.get_customers_url();
+    this.request_customers_from_endpoint( url );
   },
 
 
-    /**
-    * Populate the customer data in the related fields
-    *
-    * @public
-    */
+  /**
+   * Populate the customer data in the related fields
+   *
+   * @public
+   */
   populateCustomerData: function () {
 
         this.log("Entering showCustomerData");
@@ -121,7 +154,7 @@ var popup = {
     * Search the 'customers' array for a customer with the passed customerId as id
     *
     * @param {number} customerId, a customer ID
-    * @return {JSONobject} customer
+    * @return {Object} customer
     * @private
     */
   getCustomerById: function( id ){
@@ -230,11 +263,11 @@ var popup = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-  popup.loadCustomers();
+  popup.load_customers();
 });
 
 document.getElementById('reload').addEventListener('click', function () {
-  popup.loadCustomers();
+  popup.load_customers();
 });
 
 document.getElementById('customers').addEventListener('change', function () {
