@@ -77,6 +77,59 @@ var popup = {
     this.request_customers_from_endpoint( url );
   },
 
+  /**
+   * Get customer id from the selected element in the select box.
+   *
+   * @private
+   */
+  get_selected_customers_id: function () {
+    var select_element, selected_index, select_value;
+
+    select_element = document.getElementById('customers');
+    selected_index = select_element.selectedIndex;
+    select_value = select_element.options[ selected_index ].value
+
+    return select_value;
+  },
+
+  /**
+   * Sets an DOM nodes value by id
+   *
+   * @private
+   */
+  set_value_by_id: function ( id, value ) {
+    return document.getElementById( id ).value = value; 
+  },
+
+  /**
+   * Sets an set of DOM nodes values by id
+   *
+   * @private
+   */
+  set_form_values_from_map: function( obj ){
+    Object.keys( obj ).forEach( function( id ){
+      this.set_value_by_id( id, obj[ id ]);
+    })
+  },  
+
+  /**
+   * Updates form element values based on the given customer data.
+   *
+   * @private
+   */
+  update_form_with_customer_data: function (customer) {
+    var map = {
+      'id': customer.id,
+      'name': customer.name,
+      'address': customer.address,
+      'zipcode': customer.zipcode,
+      'city': customer.city,
+      'phone': customer.phone,
+      'email': customer.email,
+    };
+
+    this.set_form_values_from_map( map );
+  },
 
   /**
    * Populate the customer data in the related fields
@@ -84,21 +137,14 @@ var popup = {
    * @public
    */
   populateCustomerData: function () {
+    var id, customer;
 
-        this.log("Entering showCustomerData");
-        var selectorObject = document.getElementById('customers');
-        var customerId = selectorObject.options[selectorObject.selectedIndex].value;
+    this.log("Entering showCustomerData");
 
-        var customer = this.getCustomerById(customerId);
+    id = this.get_selected_customers_id();
+    customer = this.getCustomerById( id );
 
-        document.getElementById('id').value = customer.id;
-        document.getElementById('name').value = customer.name;
-        document.getElementById('address').value = customer.address;
-        document.getElementById('zipcode').value = customer.zipcode;
-        document.getElementById('city').value = customer.city;
-        document.getElementById('phone').value = customer.phone;
-        document.getElementById('email').value = customer.email;
-
+    this.update_form_with_customer_data( customer );
   },
 
 
