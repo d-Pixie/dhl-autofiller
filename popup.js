@@ -2,20 +2,22 @@
 var popup = {
 
   /**
-    * Variable to hold the JSONArray of customers
-    *
-    * @private
-    */
-  customers: null,
-
-  /**
-   * Gets an DOM node by id
+   * Variable to hold the JSONArray of customers
    *
    * @private
    */
-  element_by_id: function ( id ) {
-    return document.getElementById( id ); 
-  }
+  customers: null,
+
+  /**
+   * Sets an set of DOM nodes values by id
+   *
+   * @private
+   */
+  set_form_values_from_map: function( obj ){
+    Object.keys( obj ).forEach( function( id ){
+      this.set_value_by_id( id, obj[ id ]);
+    })
+  },
 
   /**
    * Resets all the input fields in the form.
@@ -23,11 +25,17 @@ var popup = {
    * @private
    */
   reset_the_input_fields: function () {
-    var ids = ['id', 'name', 'address', 'zipcode', 'city', 'phone', 'email'];
+    var map = {
+      'id': '',
+      'name': '',
+      'address': '',
+      'zipcode': '',
+      'city': '',
+      'phone': '',
+      'email': '',
+    };
 
-    ids.forEach( function( id ){
-      this.element_by_id( id ).value = '';  
-    });
+    this.set_form_values_from_map( map );
   },
 
   /**
@@ -102,17 +110,6 @@ var popup = {
   },
 
   /**
-   * Sets an set of DOM nodes values by id
-   *
-   * @private
-   */
-  set_form_values_from_map: function( obj ){
-    Object.keys( obj ).forEach( function( id ){
-      this.set_value_by_id( id, obj[ id ]);
-    })
-  },  
-
-  /**
    * Updates form element values based on the given customer data.
    *
    * @private
@@ -136,10 +133,10 @@ var popup = {
    *
    * @public
    */
-  populateCustomerData: function () {
+  show_customer: function () {
     var id, customer;
 
-    this.log("Entering showCustomerData");
+    this.log("Entering show_customer");
 
     id = this.get_selected_customers_id();
     customer = this.getCustomerById( id );
@@ -317,7 +314,7 @@ document.getElementById('reload').addEventListener('click', function () {
 });
 
 document.getElementById('customers').addEventListener('change', function () {
-  popup.populateCustomerData();
+  popup.show_customer();
 });
 
 document.getElementById('send_info').addEventListener('click', function () {
